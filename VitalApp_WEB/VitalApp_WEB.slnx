@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="VitalApp_API/VitalApp_API.csproj" />
+  <Project Path="VitalApp_WEB/VitalApp_WEB.csproj" />
+</Solution>

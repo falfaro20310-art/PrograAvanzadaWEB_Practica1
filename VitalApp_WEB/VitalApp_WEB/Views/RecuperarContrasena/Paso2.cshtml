@@ -1,0 +1,91 @@
+@{
+    ViewData["Title"] = "Verificar Código";
+    Layout = "_AuthLayout";
+}
+
+@section Styles {
+    <style>
+        .otp-row .inputpass-code {
+            flex: 1 1 0;
+            min-width: 0;
+            width: auto;
+            height: 56px;
+            font-size: 24px;
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+}
+
+<main class="d-flex flex-column justify-content-center vh-100">
+    <section>
+        <div class="container">
+            <div class="row mb-8">
+                <div class="col-xl-4 offset-xl-4 col-md-12 col-12">
+                    <div class="text-center">
+                        <div class="fs-2 fw-bold d-flex align-items-center gap-2 justify-content-center mb-6">
+                            <img src="~/images/brand/logo-icon.svg" alt="VitalApp" />
+                            <span>VitalApp</span>
+                        </div>
+                        <h1 class="mb-1">Verificación de código</h1>
+                        <p class="mb-0">
+                            Enviamos un código a
+                            <a href="#" class="text-inherit">tu correo electrónico</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row justify-content-center mb-5">
+                <div class="col-xl-5 col-lg-6 col-md-8 col-12">
+                    <ul class="nav nav-pills nav-justified gap-2" role="tablist">
+                        <li class="nav-item"><span class="nav-link bg-success-subtle text-success">1. Correo</span></li>
+                        <li class="nav-item"><span class="nav-link active">2. Código</span></li>
+                        <li class="nav-item"><span class="nav-link disabled bg-light-subtle text-secondary">3. Nueva contraseña</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-xl-4 col-lg-6 col-md-8 col-12">
+                    <div class="card card-lg mb-6">
+                        <div class="card-body p-6">
+                            <form asp-action="Paso3" method="get">
+                                <div class="text-center mb-3">
+                                    <label class="form-label">Ingresa el código de 6 dígitos</label>
+                                </div>
+                                <div class="d-flex flex-row gap-2 mb-5 justify-content-center otp-row">
+                                    <input type="text" class="form-control inputpass-code text-center" maxlength="1" inputmode="numeric" oninput="moveToNextInput(this)" />
+                                    <input type="text" class="form-control inputpass-code text-center" maxlength="1" inputmode="numeric" oninput="moveToNextInput(this)" />
+                                    <input type="text" class="form-control inputpass-code text-center" maxlength="1" inputmode="numeric" oninput="moveToNextInput(this)" />
+                                    <input type="text" class="form-control inputpass-code text-center" maxlength="1" inputmode="numeric" oninput="moveToNextInput(this)" />
+                                    <input type="text" class="form-control inputpass-code text-center" maxlength="1" inputmode="numeric" oninput="moveToNextInput(this)" />
+                                    <input type="text" class="form-control inputpass-code text-center" maxlength="1" inputmode="numeric" oninput="moveToNextInput(this)" />
+                                </div>
+                                <div class="row">
+                                    <div class="col-md-12">
+                                        <div class="d-grid mb-4">
+                                            <button class="btn btn-primary" type="submit">Continuar</button>
+                                        </div>
+                                        <div class="text-center mb-3">
+                                            <span>
+                                                ¿No recibiste el correo?
+                                                <a href="#">Reenviar código.</a>
+                                            </span>
+                                        </div>
+                                        <div class="text-center">
+                                            <a asp-action="Paso1">
+                                                <span>Volver atrás</span>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+</main>
