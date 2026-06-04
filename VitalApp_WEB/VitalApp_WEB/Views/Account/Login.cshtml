@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Sign In | VitalApp</title>
+  </head>
+
+  <body>
+    <main class="d-flex flex-column justify-content-center vh-90">
+      <section>
+        <div class="container">
+          <div class="row mb-8">
+            <div class="col-xl-4 offset-xl-4 col-md-12 col-12">
+              <div class="text-center">
+                <a href="../../index.html" class="fs-2 fw-bold d-flex align-items-center gap-2 justify-content-center mb-6">
+                  <img src="~/images/brand/logo-icon.svg" alt="VitalAppLogo" />
+                </a>
+                <h1 class="mb-1">VitalApp</h1>
+              </div>
+            </div>
+          </div>
+          <div class="row justify-content-center">
+            <div class="col-xl-5 col-lg-6 col-md-8 col-12">
+              <div class="card card-lg mb-6">
+                <div class="card-body p-6">
+                  <form class="needs-validation mb-6" novalidate>
+                    <div class="mb-3">
+                      <label for="signinEmailInput" class="form-label">
+                        Email
+                      </label>
+                      <input type="email" class="form-control" id="signinEmailInput" required />
+                      <div class="invalid-feedback">Please enter email.</div>
+                    </div>
+                    <div class="mb-3">
+                      <label for="formSignUpPassword" class="form-label">Password</label>
+                      <div class="password-field position-relative">
+                        <input type="password" class="form-control fakePassword" id="formSignUpPassword" required />
+                        <span><i class="ti ti-eye-off passwordToggler"></i></span>
+                        <div class="invalid-feedback">Please enter password.</div>
+                      </div>
+                    </div>
+
+                    <div class="mb-4 d-flex align-items-center justify-content-between">
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" id="rememberMeCheckbox" />
+                        <label class="form-check-label" for="rememberMeCheckbox">Remember me</label>
+                      </div>
+
+                      <div><a href="forget-password.html" class="text-primary">Forgot Password</a></div>
+                    </div>
+
+                    <div class="d-grid">
+                      <button class="btn btn-primary" type="submit">Sign In</button>
+                    </div>
+                  </form>
+                  <p class="mb-0 mt-3">
+                      Don’t have an account yet?
+                      <a href="sign-up.html" class="text-primary">Register here</a>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <script src="@@webRoot/assets/js/vendors/password.js"></script>
+  </body>
+</html>
