@@ -24,13 +24,71 @@
 
     <!-- Theme CSS -->
     <link rel="stylesheet" href="~/css/theme.css" />
+
+    <style>
+            :root {
+                --va-primary: var(--ds-primary);
+                --va-primary-dark: #00875a;
+            }
+
+            body {
+                background: var(--ds-body-bg);
+                color: var(--ds-body-color);
+            }
+
+            #miniSidebar {
+                background: var(--ds-gray-100) !important;
+                border-right: 1px solid var(--ds-border-color) !important;
+            }
+
+            .navbar {
+                background: var(--ds-body-bg) !important;
+                border-bottom: 1px solid var(--ds-border-color) !important;
+            }
+
+            .brand-logo .text-danger,
+            .btn.text-danger,
+            .text-danger {
+                color: var(--ds-danger) !important;
+            }
+
+            .bg-light {
+                background: var(--ds-gray-100) !important;
+            }
+
+            .bg-white {
+                background: var(--ds-body-bg) !important;
+            }
+
+            .card {
+                border-color: var(--ds-border-color);
+                background: var(--ds-body-bg);
+            }
+
+            .table-light {
+                background: var(--ds-gray-100) !important;
+            }
+
+            .nav-link.active {
+                color: var(--ds-primary) !important;
+            }
+
+            .nav-link:hover {
+                color: var(--ds-primary) !important;
+            }
+
+            .hero-banner {
+                background: linear-gradient(135deg,var(--ds-primary),#00875a) !important;
+            }
+    </style>
+
 </head>
 
 <body>
     <div class="d-flex">
 
         <!-- ===== SIDEBAR ===== -->
-        <div id="miniSidebar" style="min-width:220px; min-height:100vh; background:#f8f9fa; border-right:1px solid #dee2e6;">
+        <div id="miniSidebar" style="min-width:220px; min-height:100vh;">
             <div class="brand-logo p-3 border-bottom">
                 <a class="d-flex align-items-center gap-2 text-decoration-none" href="#">
                     <span style="font-size:1.5rem;">❤️</span>
@@ -111,7 +169,7 @@
                 <!-- Bienvenida + Swiper -->
                 <div class="row mb-4 g-4">
                     <div class="col-xl-8 col-lg-6">
-                        <div class="p-5 rounded-3 text-white" style="background: linear-gradient(135deg, #e74c3c, #c0392b);">
+                        <div class="p-5 rounded-3 text-white" class="hero-banner">
                             <h1 class="fs-3">👋 Hola, Ana</h1>
                             <p class="mb-0">Bienvenida a VitalApp. Registra tus métricas diarias,</p>
                             <p>visualiza tu progreso y recibe alertas personalizadas.</p>
