@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using System.Net;
@@ -9,7 +10,8 @@ namespace VitalApp_WEB.Controllers
 {
     public class HomeController(
         IHttpClientFactory _http,
-        IConfiguration _config) : Controller
+        IConfiguration _config,
+        IWebHostEnvironment _env) : Controller
     {
         // Expresion para validar la seguridad minima de la contrasena
         private const string PasswordPattern =
@@ -80,7 +82,18 @@ namespace VitalApp_WEB.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+            var exception = HttpContext.Features.Get<IExceptionHandlerFeature>();
+
+            return View(new ErrorViewModel
+            {
+                RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier,
+
+                // El detalle tecnico solo se expone mientras se desarrolla
+                ShowDetails = _env.IsDevelopment(),
+                Message = exception?.Error.Message,
+                Path = exception?.Path,
+                StackTrace = exception?.Error.ToString()
+            });
         }
     }
 }

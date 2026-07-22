@@ -1,0 +1,177 @@
+@{
+    // Datos del usuario autenticado
+    var userName = Context.Session.GetString("Name") ?? "Usuario";
+    var userInitial = string.IsNullOrWhiteSpace(userName) ? "U" : userName.Trim().Substring(0, 1).ToUpper();
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>VitalApp - @ViewData["Title"]</title>
+
+    <link rel="icon" href="~/favicon.ico" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@300;400;500;600;700;800&display=swap" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@@tabler/icons-webfont@2.47.0/tabler-icons.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+
+    <link rel="stylesheet" href="~/css/theme.css" asp-append-version="true" />
+
+    <style>
+        :root {
+            --va-primary: var(--ds-primary);
+            --va-primary-dark: #00875a;
+        }
+
+        body {
+            background: var(--ds-body-bg);
+            color: var(--ds-body-color);
+        }
+
+        #miniSidebar {
+            background: var(--ds-gray-100) !important;
+            border-right: 1px solid var(--ds-border-color) !important;
+        }
+
+        .navbar {
+            background: var(--ds-body-bg) !important;
+            border-bottom: 1px solid var(--ds-border-color) !important;
+        }
+
+        .brand-logo .text-danger,
+        .btn.text-danger,
+        .text-danger {
+            color: var(--ds-danger) !important;
+        }
+
+        .bg-light {
+            background: var(--ds-gray-100) !important;
+        }
+
+        .bg-white {
+            background: var(--ds-body-bg) !important;
+        }
+
+        .card {
+            border-color: var(--ds-border-color);
+            background: var(--ds-body-bg);
+        }
+
+        .table-light {
+            background: var(--ds-gray-100) !important;
+        }
+
+        .nav-link.active {
+            color: var(--ds-primary) !important;
+        }
+
+        .nav-link:hover {
+            color: var(--ds-primary) !important;
+        }
+
+        .hero-banner {
+            background: linear-gradient(135deg,var(--ds-primary),#00875a) !important;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+
+<body>
+    <div class="d-flex">
+
+        <!-- ===== SIDEBAR ===== -->
+        <div id="miniSidebar" style="min-width:220px; min-height:100vh;">
+            <div class="brand-logo p-3 border-bottom">
+                <a class="d-flex align-items-center gap-2 text-decoration-none" asp-controller="Home" asp-action="HomePage">
+                    <span style="font-size:1.5rem;">❤️</span>
+                    <span class="fw-bold fs-5 text-danger">VitalApp</span>
+                </a>
+            </div>
+            <ul class="navbar-nav flex-column px-2 pt-2">
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "Home" ? "active fw-semibold" : "")" asp-controller="Home" asp-action="HomePage">
+                        <i class="ti ti-layout-dashboard me-2"></i>Dashboard
+                    </a>
+                </li>
+                <li class="nav-item mt-1">
+                    <a class="nav-link" href="#">
+                        <i class="ti ti-activity me-2"></i>Métricas de Salud
+                    </a>
+                </li>
+                <li class="nav-item mt-1">
+                    <a class="nav-link" href="#">
+                        <i class="ti ti-history me-2"></i>Historial
+                    </a>
+                </li>
+                <li class="nav-item mt-1">
+                    <a class="nav-link" href="#">
+                        <i class="ti ti-bell me-2"></i>Alertas
+                    </a>
+                </li>
+                <li class="nav-item mt-2">
+                    <div class="px-3 text-muted small">Cuenta</div>
+                    <hr class="mx-3 mb-1" />
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link @(currentController == "Perfil" ? "active fw-semibold" : "")" asp-controller="Perfil" asp-action="Index">
+                        <i class="ti ti-user me-2"></i>Perfil
+                    </a>
+                </li>
+                <li class="nav-item mt-1">
+                    <a class="nav-link" asp-controller="Account" asp-action="Salir">
+                        <i class="ti ti-logout me-2"></i>Cerrar sesión
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ===== MAIN CONTENT ===== -->
+        <div id="content" class="flex-grow-1">
+
+            <!-- TOPBAR -->
+            <div class="navbar navbar-expand-lg px-4 border-bottom bg-white">
+                <div class="d-flex align-items-center gap-4 flex-grow-1">
+                    <span class="fw-semibold">@ViewData["Title"]</span>
+                </div>
+                <ul class="list-unstyled d-flex align-items-center mb-0 gap-2">
+                    <li>
+                        <a href="#" class="btn btn-light btn-sm rounded-circle position-relative">
+                            <i class="ti ti-bell"></i>
+                        </a>
+                    </li>
+                    <li class="ms-2">
+                        <a asp-controller="Perfil" asp-action="Index" class="d-flex align-items-center gap-2 text-decoration-none">
+                            <span class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px">@userInitial</span>
+                            <span class="small">@userName</span>
+                        </a>
+                    </li>
+                    <li class="ms-2">
+                        <a asp-controller="Account" asp-action="Salir" class="btn btn-outline-secondary btn-sm">
+                            <i class="ti ti-logout"></i>
+                            <small class="ms-1">Salir</small>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- CONTENIDO -->
+            <div class="p-4 bg-light min-vh-100">
+                @RenderBody()
+            </div>
+
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+    <script src="~/js/theme.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -25,6 +25,11 @@
                     <div class="card card-lg mb-6">
                         <div class="card-body p-6">
 
+                            @if (TempData["MensajeExito"] != null)
+                            {
+                                <div class="alert alert-success" role="alert">@TempData["MensajeExito"]</div>
+                            }
+
                             @if (ViewBag.Mensaje != null)
                             {
                                 <div class="alert alert-danger" role="alert">@ViewBag.Mensaje</div>
@@ -53,7 +58,7 @@
                                 </div>
 
                                 <div class="mb-4 d-flex align-items-center justify-content-end">
-                                    <a asp-controller="RecuperarContrasena" asp-action="Paso1">¿Olvidaste tu contraseña?</a>
+                                    <a asp-controller="RecuperarContrasena" asp-action="Index">¿Olvidaste tu contraseña?</a>
                                 </div>
 
                                 <div class="d-grid">

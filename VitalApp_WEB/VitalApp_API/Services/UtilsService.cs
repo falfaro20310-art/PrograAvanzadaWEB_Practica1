@@ -8,11 +8,17 @@ namespace VitalApp_API.Services
 {
     public class UtilsService(IConfiguration _config) : IUtilsService
     {
-        // Genera un codigo numerico de 6 digitos para recuperar el acceso
-        public string GenerateRecoveryCode()
+        // Genera una contrasena temporal para recuperar el acceso
+        public string GenerateTemporaryPassword()
         {
+            const string characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
             var random = new Random();
-            return random.Next(100000, 1000000).ToString();
+            var chars = new char[10];
+
+            for (int i = 0; i < 10; i++)
+                chars[i] = characters[random.Next(characters.Length)];
+
+            return new string(chars);
         }
 
         // Envia un correo electronico en formato HTML usando MailKit

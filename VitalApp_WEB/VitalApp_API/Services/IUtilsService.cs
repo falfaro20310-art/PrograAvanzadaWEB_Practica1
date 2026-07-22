@@ -2,8 +2,8 @@ namespace VitalApp_API.Services
 {
     public interface IUtilsService
     {
-        // Genera un codigo numerico para recuperar el acceso
-        string GenerateRecoveryCode();
+        // Genera una contrasena temporal para recuperar el acceso
+        string GenerateTemporaryPassword();
 
         // Envia un correo electronico en formato HTML
         Task SendEmailAsync(string recipient, string subject, string htmlBody);
