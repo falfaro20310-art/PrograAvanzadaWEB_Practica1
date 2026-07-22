@@ -59,7 +59,7 @@ CREATE TABLE [dbo].[MedicalCondition]\
 GO\
 \
 --4. IndicatorType\
-CREATE TABLE [dbo].[IndicatorType]\
+CREATE TABLE [dbo].[HealthIndicatorType]\
 (\
     IndicatorTypeId INT             IDENTITY(1,1) NOT NULL,\
     Name            NVARCHAR(250)   NOT NULL,\
@@ -75,7 +75,7 @@ CREATE TABLE [dbo].[IndicatorType]\
 GO\
 \
 --5. Measure\
-CREATE TABLE [dbo].[Measure]\
+CREATE TABLE [dbo].[UserHealthIndicatorMeasure]\
 (\
     MeasureId       INT             IDENTITY(1,1) NOT NULL,\
     UserId          INT             NOT NULL,\
