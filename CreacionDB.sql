@@ -19,6 +19,7 @@ CREATE TABLE [dbo].[Profile]
 (
     ProfileId   INT             IDENTITY(1,1) NOT NULL,
     UserId      INT             NOT NULL,
+    IdCard      NVARCHAR(50)    NOT NULL,
     Name        NVARCHAR(250)   NOT NULL,
     FirstName   NVARCHAR(250)   NOT NULL,
     LastName    NVARCHAR(250)   NOT NULL,
@@ -30,6 +31,7 @@ CREATE TABLE [dbo].[Profile]
     UpdatedAt   DATETIME2       NULL,
     DeletedAt   DATETIME2       NULL,
     CONSTRAINT PK_Profile PRIMARY KEY (ProfileId),
+    CONSTRAINT UQ_Profile_IdCard UNIQUE (IdCard),
     CONSTRAINT FK_Profile_User FOREIGN KEY (UserId) REFERENCES [dbo].[User](UserId)
 );
 GO

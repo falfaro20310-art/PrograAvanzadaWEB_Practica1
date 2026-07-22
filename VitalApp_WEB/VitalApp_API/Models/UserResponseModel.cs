@@ -1,12 +1,10 @@
-namespace VitalApp_WEB.Models
+namespace VitalApp_API.Models
 {
-    // Modelo de usuario usado por las vistas y las llamadas al API
-    public class UserModel
+    public class UserResponseModel
     {
         public int UserId { get; set; }
         public string Email { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
-        public string ConfirmPassword { get; set; } = string.Empty;
         public bool IsActive { get; set; }
         public string Token { get; set; } = string.Empty;
 
@@ -15,9 +13,5 @@ namespace VitalApp_WEB.Models
         public string Name { get; set; } = string.Empty;
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
-        public DateTime? BirthDate { get; set; }
-        public string Gender { get; set; } = string.Empty;
-        public decimal? Height { get; set; }
-        public decimal? Weight { get; set; }
     }
 }

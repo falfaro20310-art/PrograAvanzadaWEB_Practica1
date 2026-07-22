@@ -18,14 +18,17 @@ namespace VitalApp_API.Services
         // Envia un correo electronico en formato HTML usando MailKit
         public async Task SendEmailAsync(string recipient, string subject, string htmlBody)
         {
-            var message = new MimeMessage();
-            var email = _config["Emails:Email"]!;
-            var appPassword = _config["Emails:AppPassword"]!;
+            var host = _config["Smtp:Host"]!;
+            var port = int.Parse(_config["Smtp:Port"]!);
+            var user = _config["Smtp:User"]!;
+            var password = _config["Smtp:Password"]!;
 
-            if (string.IsNullOrEmpty(appPassword))
+            if (string.IsNullOrEmpty(password))
                 return;
 
-            message.From.Add(new MailboxAddress(string.Empty, email));
+            var message = new MimeMessage();
+
+            message.From.Add(new MailboxAddress("VitalApp", user));
             message.To.Add(MailboxAddress.Parse(recipient));
             message.Subject = subject;
 
@@ -35,8 +38,8 @@ namespace VitalApp_API.Services
             };
 
             using var client = new SmtpClient();
-            await client.ConnectAsync("smtp.gmail.com", 587, SecureSocketOptions.StartTls);
-            await client.AuthenticateAsync(email, appPassword);
+            await client.ConnectAsync(host, port, SecureSocketOptions.StartTls);
+            await client.AuthenticateAsync(user, password);
             await client.SendAsync(message);
             await client.DisconnectAsync(true);
         }
