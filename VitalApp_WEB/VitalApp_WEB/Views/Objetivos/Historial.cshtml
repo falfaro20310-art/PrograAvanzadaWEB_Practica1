@@ -1,0 +1,88 @@
+﻿@model VitalApp_WEB.Models.HistorialObjetivosModel
+@{
+    ViewData["Title"] = "Mis objetivos de salud";
+    Layout = "_InternalLayout";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0">Mis objetivos de salud</h5>
+    <a asp-controller="Objetivos" asp-action="Registrar" class="btn btn-danger">
+        <i class="ti ti-plus me-1"></i> Nuevo objetivo
+    </a>
+</div>
+
+@if (TempData["MensajeObjetivo"] != null)
+{
+    <div class="alert alert-@TempData["ClaseMensajeObjetivo"]" role="alert">@TempData["MensajeObjetivo"]</div>
+}
+
+<form class="row g-2 mb-3" asp-controller="Objetivos" asp-action="Historial" method="get">
+    <div class="col-auto">
+        <select name="Status" class="form-select" onchange="this.form.submit()">
+            <option value="">Todos los estados</option>
+            <option value="EnProgreso" selected="@(Model.Status == "EnProgreso")">En progreso</option>
+            <option value="Completado" selected="@(Model.Status == "Completado")">Completado</option>
+            <option value="Cancelado" selected="@(Model.Status == "Cancelado")">Cancelado</option>
+        </select>
+    </div>
+</form>
+
+@if (!Model.Objectives.Any())
+{
+    <div class="alert alert-secondary">Todavía no tienes objetivos registrados.</div>
+}
+
+<div class="row g-3">
+    @foreach (var obj in Model.Objectives)
+    {
+        var porcentaje = obj.ComplianceRate.HasValue ? Math.Clamp(obj.ComplianceRate.Value, 0, 100) : 0;
+
+        <div class="col-md-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <h6 class="card-title">@obj.Title</h6>
+                        <span class="badge bg-@(obj.Status == "Completado" ? "success" : obj.Status == "Cancelado" ? "secondary" : "warning")">
+                            @obj.Status
+                        </span>
+                    </div>
+                    <p class="text-muted small mb-2">@obj.IndicatorTypeName (@obj.Unit)</p>
+
+                    @if (!string.IsNullOrEmpty(obj.Description))
+                    {
+                        <p class="small">@obj.Description</p>
+                    }
+
+                    <div class="progress mb-2" style="height: 8px;">
+                        <div class="progress-bar bg-danger" role="progressbar" style="width: @porcentaje%"></div>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        Meta: @obj.InitialValue → @obj.ObjectiveValue @obj.Unit
+                        @if (obj.LastValue.HasValue)
+                        {
+                            <text> · Último valor: @obj.LastValue @obj.Unit (@porcentaje%)</text>
+                        }
+                    </p>
+
+                    <div class="d-flex flex-wrap gap-2">
+                        <form asp-controller="Objetivos" asp-action="RegistrarAvance" method="post" class="d-flex gap-1">
+                            <input type="hidden" name="objectiveId" value="@obj.ObjectiveId" />
+                            <input type="number" step="0.01" name="currentValue" class="form-control form-control-sm" style="width: 100px;" placeholder="Valor" required />
+                            <button type="submit" class="btn btn-sm btn-outline-success">Registrar avance</button>
+                        </form>
+
+                        <a asp-controller="Objetivos" asp-action="Editar" asp-route-objectiveId="@obj.ObjectiveId" class="btn btn-sm btn-outline-secondary">
+                            Editar
+                        </a>
+
+                        <form asp-controller="Objetivos" asp-action="EliminarObjetivo" method="post"
+                              onsubmit="return confirm('¿Eliminar este objetivo?');">
+                            <input type="hidden" name="objectiveId" value="@obj.ObjectiveId" />
+                            <button type="submit" class="btn btn-sm btn-outline-danger">Eliminar</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>

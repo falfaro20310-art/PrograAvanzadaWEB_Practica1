@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/Scripts/">
+    <File Path="../../../../../OneDrive/Documentos/SQL Server Management Studio 22/Objetivos de salud.sql" />
+  </Folder>
   <Project Path="VitalApp_API/VitalApp_API.csproj" />
   <Project Path="VitalApp_WEB/VitalApp_WEB.csproj" />
 </Solution>
