@@ -129,5 +129,98 @@ namespace VitalApp_API.Controllers
         }
 
         #endregion
+
+        #region Mediciones
+
+        // Consulta los tipos de indicadores de salud disponibles
+        [HttpGet("GetIndicatorTypesAPI")]
+        public IActionResult GetIndicatorTypesAPI()
+        {
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var response = context.Query<IndicatorTypeResponseModel>("GetIndicatorTypesAPI").ToList();
+
+            return Ok(response);
+        }
+
+        // Consulta las mediciones de salud del usuario con filtros opcionales
+        [HttpGet("GetMeasuresAPI")]
+        public IActionResult GetMeasuresAPI(int UserId, int? MeasureId, int? IndicatorTypeId, DateTime? DateFrom, DateTime? DateTo)
+        {
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", UserId);
+            parameters.Add("@MeasureId", MeasureId);
+            parameters.Add("@IndicatorTypeId", IndicatorTypeId);
+            parameters.Add("@DateFrom", DateFrom);
+            parameters.Add("@DateTo", DateTo);
+
+            var response = context.Query<MeasureResponseModel>("usp_UserHealthIndicatorMeasure_Get", parameters).ToList();
+
+            return Ok(response);
+        }
+
+        // Actualiza los valores de una medicion de salud existente
+        [HttpPut("UpdateMeasureAPI")]
+        public IActionResult UpdateMeasureAPI(UpdateMeasureRequestModel model)
+        {
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@MeasureId", model.MeasureId);
+            parameters.Add("@Value", model.Value);
+            parameters.Add("@SecondaryValue", model.SecondaryValue);
+            parameters.Add("@MeasureDate", model.MeasureDate);
+            parameters.Add("@Notes", model.Notes);
+
+            var response = context.Execute("usp_UserHealthIndicatorMeasure_Update", parameters);
+
+            if (response != 0)
+                return Ok("La medicion se actualizo correctamente.");
+
+            return BadRequest("La medicion no se pudo actualizar correctamente.");
+        }
+
+        // Elimina (logicamente) una medicion de salud del usuario
+        [HttpDelete("DeleteMeasureAPI")]
+        public IActionResult DeleteMeasureAPI(int MeasureId)
+        {
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@MeasureId", MeasureId);
+
+            var response = context.Execute("usp_UserHealthIndicatorMeasure_Delete", parameters);
+
+            if (response != 0)
+                return Ok("La medicion se elimino correctamente.");
+
+            return BadRequest("La medicion no se pudo eliminar correctamente.");
+        }
+
+        // Registra una medicion de indicador de salud para el usuario
+        [HttpPost("RegisterMeasureAPI")]
+        public IActionResult RegisterMeasureAPI(CreateMeasureRequestModel model)
+        {
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", model.UserId);
+            parameters.Add("@IndicatorTypeId", model.IndicatorTypeId);
+            parameters.Add("@Value", model.Value);
+            parameters.Add("@SecondaryValue", model.SecondaryValue);
+            parameters.Add("@MeasureDate", model.MeasureDate);
+            parameters.Add("@Notes", model.Notes);
+
+            var newId = context.QueryFirstOrDefault<int>("usp_UserHealthIndicatorMeasure_Create", parameters);
+
+            if (newId > 0)
+                return Ok("La medicion se registro correctamente.");
+
+            return BadRequest("La medicion no se pudo registrar correctamente.");
+        }
+
+        #endregion
     }
 }

@@ -1,0 +1,148 @@
+@model VitalApp_WEB.Models.HistorialMedicionesModel
+@{
+    ViewData["Title"] = "Historial de mediciones";
+    Layout = "_InternalLayout";
+}
+
+<div class="row g-4">
+
+    <!-- Filtros -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Filtros</h5>
+            </div>
+            <div class="card-body">
+                <form asp-controller="Mediciones" asp-action="Historial" method="get">
+                    <div class="row g-3 align-items-end">
+
+                        <div class="col-md-4">
+                            <label for="IndicatorTypeId" class="form-label">Tipo de indicador</label>
+                            <select name="IndicatorTypeId" id="IndicatorTypeId" class="form-select">
+                                <option value="">Todos</option>
+                                @foreach (var tipo in Model.IndicatorTypes)
+                                {
+                                    <option value="@tipo.IndicatorTypeId"
+                                            selected="@(Model.IndicatorTypeId == tipo.IndicatorTypeId)">
+                                        @tipo.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="DateFrom" class="form-label">Desde</label>
+                            <input type="date" name="DateFrom" id="DateFrom" class="form-control"
+                                   value="@Model.DateFrom?.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="DateTo" class="form-label">Hasta</label>
+                            <input type="date" name="DateTo" id="DateTo" class="form-control"
+                                   value="@Model.DateTo?.ToString("yyyy-MM-dd")" />
+                        </div>
+
+                        <div class="col-md-2 d-flex gap-2">
+                            <button type="submit" class="btn btn-danger w-100">Filtrar</button>
+                            <a asp-controller="Mediciones" asp-action="Historial" class="btn btn-outline-secondary w-100">Limpiar</a>
+                        </div>
+
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Resultados -->
+    <div class="col-12">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Registros de mediciones</h5>
+                <a asp-controller="Mediciones" asp-action="Registrar" class="btn btn-danger btn-sm">
+                    <i class="ti ti-plus me-1"></i> Nueva medición
+                </a>
+            </div>
+
+            @if (!Model.Measures.Any())
+            {
+                <div class="card-body text-center text-muted py-5">
+                    <i class="ti ti-clipboard-x fs-1 d-block mb-2"></i>
+                    No se encontraron mediciones con los filtros seleccionados.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Indicador</th>
+                                <th>Valor principal</th>
+                                <th>Valor secundario</th>
+                                <th>Notas</th>
+                                <th>Estado</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var m in Model.Measures)
+                            {
+                                <tr>
+                                    <td>@m.MeasureDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td>@m.IndicatorTypeName</td>
+                                    <td>@m.Value @m.Unit</td>
+                                    <td>
+                                        @if (m.SecondaryValue > 0)
+                                        {
+                                            <span>@m.SecondaryValue @m.Unit</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (!string.IsNullOrWhiteSpace(m.Notes))
+                                        {
+                                            <span title="@m.Notes">@(m.Notes!.Length > 40 ? m.Notes[..40] + "…" : m.Notes)</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">—</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        @if (m.IsAbnormal)
+                                        {
+                                            <span class="badge bg-danger">Anormal</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">Normal</span>
+                                        }
+                                    </td>
+                                    <td class="d-flex gap-1">
+                                        <a asp-controller="Mediciones" asp-action="Editar"
+                                           asp-route-measureId="@m.MeasureId"
+                                           class="btn btn-outline-secondary btn-sm">
+                                            <i class="ti ti-pencil"></i>
+                                        </a>
+                                        <form asp-controller="Mediciones" asp-action="EliminarMedicion" method="post"
+                                              onsubmit="return confirm('¿Está seguro de que desea eliminar esta medición?')">
+                                            <input type="hidden" name="measureId" value="@m.MeasureId" />
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="ti ti-trash"></i>
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+
+</div>

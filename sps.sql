@@ -1,3 +1,23 @@
+-- Health Indicator Type
+
+-- 1. Get Indicator types
+CREATE OR ALTER PROCEDURE [dbo].[GetIndicatorTypesAPI]
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT
+        IndicatorTypeId,
+        Name,
+        Unit,
+        MinNormalValue,
+        MaxNormalValue
+    FROM [dbo].[HealthIndicatorType]
+    WHERE DeletedAt IS NULL
+    ORDER BY Name;
+END
+GO
+
 -- UserHealthIndicatorMeasure Stored Procedures...
 
 -- =========================================================
@@ -21,7 +41,7 @@ BEGIN
     SELECT
         @MinNormal = MinNormalValue,
         @MaxNormal = MaxNormalValue
-    FROM [dbo].[IndicatorType]
+    FROM [dbo].[HealthIndicatorType]
     WHERE IndicatorTypeId = @IndicatorTypeId
       AND DeletedAt IS NULL;
 
@@ -75,9 +95,10 @@ BEGIN
         m.UpdatedAt,
         m.DeletedAt
     FROM [dbo].[UserHealthIndicatorMeasure] m
-    INNER JOIN [dbo].[IndicatorType] it
+    INNER JOIN [dbo].[HealthIndicatorType] it
         ON it.IndicatorTypeId = m.IndicatorTypeId
-    WHERE (@MeasureId       IS NULL OR m.MeasureId = @MeasureId)
+    WHERE m.DeletedAt IS NULL
+      AND (@MeasureId       IS NULL OR m.MeasureId = @MeasureId)
       AND (@UserId          IS NULL OR m.UserId = @UserId)
       AND (@IndicatorTypeId IS NULL OR m.IndicatorTypeId = @IndicatorTypeId)
       AND (@DateFrom        IS NULL OR m.MeasureDate >= @DateFrom)
@@ -119,7 +140,7 @@ BEGIN
     SELECT
         @MinNormal = MinNormalValue,
         @MaxNormal = MaxNormalValue
-    FROM [dbo].[IndicatorType]
+    FROM [dbo].[HealthIndicatorType]
     WHERE IndicatorTypeId = @IndicatorTypeId;
 
     SET @IsAbnormal = CASE

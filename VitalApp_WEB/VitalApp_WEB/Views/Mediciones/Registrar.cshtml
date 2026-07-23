@@ -1,0 +1,142 @@
+@model VitalApp_WEB.Models.MeasureModel
+@{
+    ViewData["Title"] = "Registrar medición";
+    Layout = "_InternalLayout";
+}
+
+<div class="row justify-content-center">
+    <div class="col-xl-7 col-lg-9">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white">
+                <h5 class="mb-0">Registrar medición de salud</h5>
+            </div>
+            <div class="card-body">
+
+                @if (TempData["MensajeMedicion"] != null)
+                {
+                    <div class="alert alert-@TempData["ClaseMensajeMedicion"]" role="alert">@TempData["MensajeMedicion"]</div>
+                }
+
+                <form class="needs-validation" asp-controller="Mediciones" asp-action="Registrar" method="post" novalidate>
+
+                    <div class="row g-3">
+
+                        <div class="col-12">
+                            <label asp-for="IndicatorTypeId" class="form-label">
+                                Tipo de indicador
+                                <span class="text-danger">*</span>
+                            </label>
+                            <select asp-for="IndicatorTypeId" class="form-select" required>
+                                <option value="">Seleccione un indicador...</option>
+                                @foreach (var tipo in Model.IndicatorTypes)
+                                {
+                                    <option value="@tipo.IndicatorTypeId"
+                                            data-unit="@tipo.Unit"
+                                            data-min="@tipo.MinNormalValue"
+                                            data-max="@tipo.MaxNormalValue">
+                                        @tipo.Name (@tipo.Unit)
+                                    </option>
+                                }
+                            </select>
+                            <div class="invalid-feedback">Por favor seleccione un tipo de indicador.</div>
+                            <div id="rangoNormal" class="form-text d-none">
+                                Rango normal: <span id="rangoTexto"></span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="Value" class="form-label">
+                                Valor principal
+                                <span class="text-danger">*</span>
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="Value" type="number" step="0.01" min="0" class="form-control" required />
+                                <span class="input-group-text" id="unidadPrincipal">—</span>
+                            </div>
+                            <div class="invalid-feedback">Por favor ingrese el valor de la medición.</div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="SecondaryValue" class="form-label">
+                                Valor secundario
+                            </label>
+                            <div class="input-group">
+                                <input asp-for="SecondaryValue" type="number" step="0.01" min="0" class="form-control" />
+                                <span class="input-group-text" id="unidadSecundaria">—</span>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label asp-for="MeasureDate" class="form-label">
+                                Fecha de medición
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input asp-for="MeasureDate" type="datetime-local" class="form-control" required
+                                   value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" />
+                            <div class="invalid-feedback">Por favor ingrese la fecha de la medición.</div>
+                        </div>
+
+                        <div class="col-12">
+                            <label asp-for="Notes" class="form-label">Notas adicionales</label>
+                            <textarea asp-for="Notes" class="form-control" rows="3"
+                                      placeholder="Observaciones opcionales sobre esta medición..."></textarea>
+                        </div>
+
+                        <div class="col-12 d-flex gap-2 justify-content-end">
+                            <a asp-controller="Home" asp-action="HomePage" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                            <button type="submit" class="btn btn-danger">
+                                <i class="ti ti-device-floppy me-1"></i> Guardar medición
+                            </button>
+                        </div>
+
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const select = document.getElementById('IndicatorTypeId');
+        const rangoDiv = document.getElementById('rangoNormal');
+        const rangoTexto = document.getElementById('rangoTexto');
+        const unidadPrincipal = document.getElementById('unidadPrincipal');
+        const unidadSecundaria = document.getElementById('unidadSecundaria');
+
+        select.addEventListener('change', function () {
+            const opt = this.options[this.selectedIndex];
+            const unit = opt.dataset.unit;
+            const min = opt.dataset.min;
+            const max = opt.dataset.max;
+
+            if (unit) {
+                unidadPrincipal.textContent = unit;
+                unidadSecundaria.textContent = unit;
+                rangoTexto.textContent = `${min} – ${max} ${unit}`;
+                rangoDiv.classList.remove('d-none');
+            } else {
+                unidadPrincipal.textContent = '—';
+                unidadSecundaria.textContent = '—';
+                rangoDiv.classList.add('d-none');
+            }
+        });
+
+        // Bootstrap form validation
+        (() => {
+            'use strict';
+            document.querySelectorAll('.needs-validation').forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                });
+            });
+        })();
+    </script>
+}
