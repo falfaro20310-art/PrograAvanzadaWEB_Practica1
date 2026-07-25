@@ -25,7 +25,21 @@ namespace VitalApp_WEB.Controllers
         [SessionAuthorize]
         public IActionResult HomePage()
         {
-            return View();
+            var userId = HttpContext.Session.GetInt32("UserId");
+
+            using var client = _http.CreateClient();
+
+            var urlApi = _config["Valores:UrlApi"] + $"Dashboard/GetDashboard/{userId}";
+            var response = client.GetAsync(urlApi).Result;
+
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var datos = response.Content.ReadFromJsonAsync<List<DashboardModel>>().Result;
+
+                return View(datos);
+            }
+
+            throw new Exception("Ocurrió un error al cargar el dashboard.");
         }
 
         public IActionResult Privacy()
