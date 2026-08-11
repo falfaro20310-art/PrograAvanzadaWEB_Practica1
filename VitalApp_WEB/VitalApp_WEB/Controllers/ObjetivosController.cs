@@ -106,7 +106,7 @@ namespace VitalApp_WEB.Controllers
             TempData["MensajeObjetivo"] = response.Content.ReadAsStringAsync().Result;
             TempData["ClaseMensajeObjetivo"] = response.StatusCode == HttpStatusCode.OK ? "success" : "danger";
 
-            return RedirectToAction("Registrar");
+            return RedirectToAction("Historial");
         }
 
         #endregion

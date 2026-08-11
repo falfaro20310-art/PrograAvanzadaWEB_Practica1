@@ -33,7 +33,8 @@
                                     <option value="@tipo.IndicatorTypeId"
                                             data-unit="@tipo.Unit"
                                             data-min="@tipo.MinNormalValue"
-                                            data-max="@tipo.MaxNormalValue">
+                                            data-max="@tipo.MaxNormalValue"
+                                            data-name="@tipo.Name">
                                         @tipo.Name (@tipo.Unit)
                                     </option>
                                 }
@@ -56,9 +57,10 @@
                             <div class="invalid-feedback">Por favor ingrese el valor de la medición.</div>
                         </div>
 
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none" id="secundarioCol">
                             <label asp-for="SecondaryValue" class="form-label">
                                 Valor secundario
+                                <small class="text-muted">(diastólica)</small>
                             </label>
                             <div class="input-group">
                                 <input asp-for="SecondaryValue" type="number" step="0.01" min="0" class="form-control" />
@@ -106,12 +108,15 @@
         const rangoTexto = document.getElementById('rangoTexto');
         const unidadPrincipal = document.getElementById('unidadPrincipal');
         const unidadSecundaria = document.getElementById('unidadSecundaria');
+        const secundarioCol = document.getElementById('secundarioCol');
+        const secundarioInput = secundarioCol.querySelector('input');
 
         select.addEventListener('change', function () {
             const opt = this.options[this.selectedIndex];
             const unit = opt.dataset.unit;
             const min = opt.dataset.min;
             const max = opt.dataset.max;
+            const name = (opt.dataset.name || '').trim().toLowerCase();
 
             if (unit) {
                 unidadPrincipal.textContent = unit;
@@ -122,6 +127,13 @@
                 unidadPrincipal.textContent = '—';
                 unidadSecundaria.textContent = '—';
                 rangoDiv.classList.add('d-none');
+            }
+
+            if (name === 'presión arterial' || name === 'presion arterial') {
+                secundarioCol.classList.remove('d-none');
+            } else {
+                secundarioCol.classList.add('d-none');
+                secundarioInput.value = '';
             }
         });
 

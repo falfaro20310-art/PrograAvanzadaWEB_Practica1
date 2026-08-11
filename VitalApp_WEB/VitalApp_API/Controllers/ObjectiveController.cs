@@ -67,12 +67,15 @@ namespace VitalApp_API.Controllers
             parameters.Add("@LimitDate", model.LimitDate);
             parameters.Add("@Status", model.Status);
 
-            var response = context.Execute("usp_UserObjective_Update", parameters);
-
-            if (response > 0)
+            try
+            {
+                context.Execute("usp_UserObjective_Update", parameters);
                 return Ok("El objetivo se actualizo correctamente.");
-
-            return BadRequest("El objetivo no se pudo actualizar correctamente.");
+            }
+            catch (SqlException)
+            {
+                return BadRequest("El objetivo no se pudo actualizar correctamente.");
+            }
         }
 
         // Elimina (logicamente) un objetivo de salud
@@ -85,12 +88,15 @@ namespace VitalApp_API.Controllers
             parameters.Add("@ObjectiveId", ObjectiveId);
             parameters.Add("@UserId", UserId);
 
-            var response = context.Execute("usp_UserObjective_Delete", parameters);
-
-            if (response > 0)
+            try
+            {
+                context.Execute("usp_UserObjective_Delete", parameters);
                 return Ok("El objetivo se elimino correctamente.");
-
-            return BadRequest("El objetivo no se pudo eliminar correctamente.");
+            }
+            catch (SqlException)
+            {
+                return BadRequest("El objetivo no se pudo eliminar correctamente.");
+            }
         }
 
         #endregion

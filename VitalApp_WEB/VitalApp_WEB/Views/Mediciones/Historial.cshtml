@@ -4,6 +4,11 @@
     Layout = "_InternalLayout";
 }
 
+@if (TempData["MensajeMedicion"] != null)
+{
+    <div class="alert alert-@TempData["ClaseMensajeMedicion"]" role="alert">@TempData["MensajeMedicion"]</div>
+}
+
 <div class="row g-4">
 
     <!-- Filtros -->

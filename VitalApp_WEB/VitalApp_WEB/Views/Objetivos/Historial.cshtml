@@ -22,7 +22,6 @@
             <option value="">Todos los estados</option>
             <option value="EnProgreso" selected="@(Model.Status == "EnProgreso")">En progreso</option>
             <option value="Completado" selected="@(Model.Status == "Completado")">Completado</option>
-            <option value="Cancelado" selected="@(Model.Status == "Cancelado")">Cancelado</option>
         </select>
     </div>
 </form>
@@ -65,15 +64,18 @@
                     </p>
 
                     <div class="d-flex flex-wrap gap-2">
-                        <form asp-controller="Objetivos" asp-action="RegistrarAvance" method="post" class="d-flex gap-1">
-                            <input type="hidden" name="objectiveId" value="@obj.ObjectiveId" />
-                            <input type="number" step="0.01" name="currentValue" class="form-control form-control-sm" style="width: 100px;" placeholder="Valor" required />
-                            <button type="submit" class="btn btn-sm btn-outline-success">Registrar avance</button>
-                        </form>
+                        @if (obj.Status != "Completado")
+                        {
+                            <form asp-controller="Objetivos" asp-action="RegistrarAvance" method="post" class="d-flex gap-1">
+                                <input type="hidden" name="objectiveId" value="@obj.ObjectiveId" />
+                                <input type="number" step="0.01" name="currentValue" class="form-control form-control-sm" style="width: 100px;" placeholder="Valor" required />
+                                <button type="submit" class="btn btn-sm btn-outline-success">Registrar avance</button>
+                            </form>
 
-                        <a asp-controller="Objetivos" asp-action="Editar" asp-route-objectiveId="@obj.ObjectiveId" class="btn btn-sm btn-outline-secondary">
-                            Editar
-                        </a>
+                            <a asp-controller="Objetivos" asp-action="Editar" asp-route-objectiveId="@obj.ObjectiveId" class="btn btn-sm btn-outline-secondary">
+                                Editar
+                            </a>
+                        }
 
                         <form asp-controller="Objetivos" asp-action="EliminarObjetivo" method="post"
                               onsubmit="return confirm('¿Eliminar este objetivo?');">

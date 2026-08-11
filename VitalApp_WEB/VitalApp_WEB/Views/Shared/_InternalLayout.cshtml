@@ -11,7 +11,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VitalApp - @ViewData["Title"]</title>
 
-    <link rel="icon" href="~/favicon.ico" />
+    <link rel="icon" type="image/svg+xml" href="~/favicon.svg" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
@@ -91,7 +91,7 @@
         <div id="miniSidebar" style="min-width:220px; min-height:100vh;">
             <div class="brand-logo p-3 border-bottom">
                 <a class="d-flex align-items-center gap-2 text-decoration-none" asp-controller="Home" asp-action="HomePage">
-                    <span style="font-size:1.5rem;">❤️</span>
+                    <img src="~/images/brand/health.svg" alt="VitalApp" style="width:1.5rem;height:1.5rem;" />
                     <span class="fw-bold fs-5 text-danger">VitalApp</span>
                 </a>
             </div>
@@ -121,9 +121,9 @@
                         <i class="ti ti-bell me-2"></i>Alertas
                     </a>
                 </li>
-                <li class="nav-item mt-2">
-                    <div class="px-3 text-muted small">Cuenta</div>
-                    <hr class="mx-3 mb-1" />
+                <hr class="my-3" />
+                <li class="nav-item mb-2">
+                    <div class="text-muted small">Cuenta</div>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link @(currentController == "Perfil" ? "active fw-semibold" : "")" asp-controller="Perfil" asp-action="Index">

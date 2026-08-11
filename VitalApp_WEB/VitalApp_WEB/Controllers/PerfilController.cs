@@ -130,8 +130,16 @@ namespace VitalApp_WEB.Controllers
             if (response.StatusCode == HttpStatusCode.Unauthorized)
                 return RedirectToAction("Salir", "Account");
 
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                HttpContext.Session.Clear();
+
+                TempData["MensajeExito"] = "Su contrasena se actualizo correctamente. Por favor inicie sesion nuevamente.";
+                return RedirectToAction("Login", "Account");
+            }
+
             TempData["MensajeSeguridad"] = response.Content.ReadAsStringAsync().Result;
-            TempData["ClaseMensajeSeguridad"] = response.StatusCode == HttpStatusCode.OK ? "success" : "danger";
+            TempData["ClaseMensajeSeguridad"] = "danger";
 
             return RedirectToAction("Index");
         }
