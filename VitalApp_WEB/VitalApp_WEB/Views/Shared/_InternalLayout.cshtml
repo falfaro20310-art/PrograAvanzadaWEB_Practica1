@@ -129,6 +129,11 @@
                         <i class="ti ti-bell me-2"></i>Alertas
                     </a>
                 </li>
+                <li class="nav-item mt-1">
+                    <a class="nav-link @(currentController == "Contacto" ? "active fw-semibold" : "")" asp-controller="Contacto" asp-action="Chat">
+                        <i class="ti ti-messages me-2"></i>Consultas
+                    </a>
+                </li>
                 @if (isDoctor)
                 {
                     <li class="nav-item mt-1">

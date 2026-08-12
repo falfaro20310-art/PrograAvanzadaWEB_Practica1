@@ -1,0 +1,209 @@
+@model List<VitalApp_WEB.Models.ConsultationModel>
+@{
+    ViewData["Title"] = "Consultas";
+    Layout = "_InternalLayout";
+
+    var isDoctor = ViewBag.IsDoctor == true;
+    var measures = ViewBag.Measures as List<VitalApp_WEB.Models.MeasureItemModel> ?? new List<VitalApp_WEB.Models.MeasureItemModel>();
+
+    string StatusLabel(string s) => s switch
+    {
+        "Open" => "Abierta",
+        "InProgress" => "En progreso",
+        "Closed" => "Cerrada",
+        _ => s
+    };
+
+    // Texto del indicador adjunto (si la consulta tiene contexto)
+    string MeasureContext(VitalApp_WEB.Models.ConsultationModel c)
+    {
+        if (c.MeasureId == null) return string.Empty;
+
+        var value = c.MeasureValue?.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture);
+        var date = c.MeasureDate?.ToString("dd/MM/yyyy");
+        var flag = c.MeasureIsAbnormal == true ? " · Fuera de rango" : "";
+
+        return $"{c.MeasureIndicator}: {value} {c.MeasureUnit} ({date}){flag}";
+    }
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/chat.css" asp-append-version="true" />
+}
+
+<div id="chatData" class="d-none"
+     data-hub="@ViewBag.UrlHub"
+     data-token="@ViewBag.Token"
+     data-userid="@ViewBag.CurrentUserId"
+     data-isdoctor="@(isDoctor ? "1" : "0")"></div>
+
+@if (TempData["MensajeChat"] != null)
+{
+    <div class="alert alert-@TempData["ClaseMensajeChat"]" role="alert">@TempData["MensajeChat"]</div>
+}
+
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h5 class="mb-0">@(isDoctor ? "Consultas de pacientes" : "Mis consultas")</h5>
+    @if (!isDoctor)
+    {
+        <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#nuevaConsultaModal">
+            <i class="ti ti-plus me-1"></i>Contactar médico
+        </button>
+    }
+</div>
+
+<div class="card shadow-sm">
+    <div class="row g-0 chat-wrapper">
+
+        <!-- Lista de consultas -->
+        <div class="col-12 col-md-4 col-lg-3 border-end d-flex flex-column">
+            <div class="p-3 border-bottom">
+                <span class="fw-semibold"><i class="ti ti-messages me-2"></i>Conversaciones</span>
+            </div>
+            <div class="overflow-auto flex-grow-1">
+                @if (!Model.Any())
+                {
+                    <p class="text-muted text-center mt-4 px-3">
+                        @(isDoctor ? "No hay consultas abiertas por ahora." : "Aún no tienes consultas.")
+                    </p>
+                }
+                @foreach (var c in Model)
+                {
+                    if (isDoctor && c.StatusId == 1)
+                    {
+                        <div class="p-3 border-bottom">
+                            <div class="fw-semibold text-truncate">@c.Title</div>
+                            <small class="text-muted d-block">@c.InterlocutorName · @StatusLabel(c.StatusName)</small>
+                            @if (!string.IsNullOrWhiteSpace(c.Description))
+                            {
+                                <p class="small mt-1 mb-1">@c.Description</p>
+                            }
+                            @if (c.MeasureId != null)
+                            {
+                                <div class="small text-muted mb-2"><i class="ti ti-activity me-1"></i>@MeasureContext(c)</div>
+                            }
+                            <form asp-controller="Contacto" asp-action="Atender" method="post" class="mt-2">
+                                <input type="hidden" name="consultationId" value="@c.ConsultationId" />
+                                <button type="submit" class="btn btn-outline-primary btn-sm">
+                                    <i class="ti ti-headset me-1"></i>Atender
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="consultation-item p-3 border-bottom"
+                             data-id="@c.ConsultationId"
+                             data-interlocutor="@c.InterlocutorName"
+                             data-status="@c.StatusId"
+                             data-title="@c.Title"
+                             data-description="@c.Description"
+                             data-measure="@MeasureContext(c)">
+                            <div class="fw-semibold text-truncate">@c.Title</div>
+                            <small class="text-muted">
+                                <span class="ci-interlocutor">@c.InterlocutorName</span> · <span class="ci-status">@StatusLabel(c.StatusName)</span>
+                            </small>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <!-- Ventana de chat -->
+        <div class="col-12 col-md-8 col-lg-9 d-flex flex-column">
+
+            <div class="p-3 border-bottom" id="chatHeader" style="display:none!important;">
+                <div class="d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center me-3"
+                             style="width:38px;height:38px;min-width:38px;">
+                            <i class="ti ti-user"></i>
+                        </div>
+                        <div>
+                            <div class="fw-semibold" id="chatInterlocutor">—</div>
+                            <small class="small text-success" id="chatStatus">Conectando…</small>
+                        </div>
+                    </div>
+                    <form asp-controller="Contacto" asp-action="Finalizar" method="post" id="finalizarForm" class="d-none">
+                        <input type="hidden" name="consultationId" id="finalizarConsultationId" />
+                        <button type="submit" class="btn btn-outline-danger btn-sm">
+                            <i class="ti ti-circle-check me-1"></i>Finalizar
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="flex-grow-1 overflow-auto p-3 chat-messages" id="messagesArea">
+                <p class="text-muted text-center mt-5" id="chatPlaceholder">
+                    Selecciona una conversación para comenzar.
+                </p>
+            </div>
+
+            <div class="p-3 border-top">
+                <div class="input-group">
+                    <input type="text" id="messageInput" class="form-control" disabled
+                           placeholder="Escribe un mensaje…" autocomplete="off" maxlength="2000" />
+                    <button class="btn btn-primary" id="sendButton" type="button" disabled>
+                        <i class="ti ti-send"></i>
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@if (!isDoctor)
+{
+    <!-- Modal: nueva consulta -->
+    <div class="modal fade" id="nuevaConsultaModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form asp-controller="Contacto" asp-action="CrearConsulta" method="post" class="needs-validation" novalidate>
+                    <div class="modal-header">
+                        <h5 class="modal-title">Contactar a un médico</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="consultaTitle" class="form-label">
+                                Motivo
+                                <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" id="consultaTitle" name="title" class="form-control" maxlength="150" placeholder="Ej. Presión elevada" required />
+                            <div class="invalid-feedback">Ingresa el motivo de la consulta.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="consultaDescription" class="form-label">Descripción</label>
+                            <textarea id="consultaDescription" name="description" class="form-control" rows="3" maxlength="500" placeholder="Cuéntale al médico qué te preocupa"></textarea>
+                        </div>
+
+                        <div class="mb-1">
+                            <label for="consultaMeasure" class="form-label">Indicador relacionado (opcional)</label>
+                            <select id="consultaMeasure" name="measureId" class="form-select">
+                                <option value="">Sin contexto</option>
+                                @foreach (var m in measures)
+                                {
+                                    <option value="@m.MeasureId">
+                                        @m.IndicatorTypeName — @m.Value @m.Unit (@m.MeasureDate.ToString("dd/MM/yyyy"))
+                                    </option>
+                                }
+                            </select>
+                            <div class="form-text">Puedes adjuntar una medición para dar contexto al médico.</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Enviar consulta</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.min.js"></script>
+    <script src="~/js/chat.js" asp-append-version="true"></script>
+}

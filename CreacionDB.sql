@@ -162,3 +162,49 @@ CREATE TABLE [dbo].[ErrorLog]
     CONSTRAINT PK_ErrorLog PRIMARY KEY (ErrorLogId)
 );
 GO
+
+CREATE TABLE [dbo].[ConsultationStatus]
+(
+    StatusId INT             IDENTITY(1,1) NOT NULL,
+    Name     NVARCHAR(50)    NOT NULL,
+    CONSTRAINT PK_ConsultationStatus PRIMARY KEY (StatusId),
+    CONSTRAINT UQ_ConsultationStatus_Name UNIQUE (Name)
+);
+GO
+
+SET IDENTITY_INSERT [dbo].[ConsultationStatus] ON;
+INSERT INTO [dbo].[ConsultationStatus] (StatusId, Name) VALUES (1, N'Open'), (2, N'InProgress'), (3, N'Closed');
+SET IDENTITY_INSERT [dbo].[ConsultationStatus] OFF;
+GO
+
+CREATE TABLE [dbo].[Consultation]
+(
+    ConsultationId INT             IDENTITY(1,1) NOT NULL,
+    PatientUserId  INT             NOT NULL,
+    DoctorUserId   INT             NULL,
+    MeasureId      INT             NULL,
+    Title          NVARCHAR(150)   NOT NULL,
+    Description    NVARCHAR(500)   NULL,
+    StatusId       INT             NOT NULL DEFAULT (1),
+    CreatedAt      DATETIME2       NOT NULL DEFAULT (SYSUTCDATETIME()),
+    ClosedAt       DATETIME2       NULL,
+    CONSTRAINT PK_Consultation PRIMARY KEY (ConsultationId),
+    CONSTRAINT FK_Consultation_Patient FOREIGN KEY (PatientUserId) REFERENCES [dbo].[User](UserId),
+    CONSTRAINT FK_Consultation_Doctor FOREIGN KEY (DoctorUserId) REFERENCES [dbo].[User](UserId),
+    CONSTRAINT FK_Consultation_Measure FOREIGN KEY (MeasureId) REFERENCES [dbo].[UserHealthIndicatorMeasure](MeasureId),
+    CONSTRAINT FK_Consultation_Status FOREIGN KEY (StatusId) REFERENCES [dbo].[ConsultationStatus](StatusId)
+);
+GO
+
+CREATE TABLE [dbo].[Message]
+(
+    MessageId      INT             IDENTITY(1,1) NOT NULL,
+    ConsultationId INT             NOT NULL,
+    SenderUserId   INT             NOT NULL,
+    Content        NVARCHAR(2000)  NOT NULL,
+    SentAt         DATETIME2       NOT NULL DEFAULT (SYSUTCDATETIME()),
+    CONSTRAINT PK_Message PRIMARY KEY (MessageId),
+    CONSTRAINT FK_Message_Consultation FOREIGN KEY (ConsultationId) REFERENCES [dbo].[Consultation](ConsultationId),
+    CONSTRAINT FK_Message_Sender FOREIGN KEY (SenderUserId) REFERENCES [dbo].[User](UserId)
+);
+GO

@@ -47,7 +47,7 @@ namespace VitalApp_API.Controllers
 
             if (response != null && BCrypt.Net.BCrypt.Verify(model.Password, response.Password))
             {
-                response.Token = _utils.GenerateToken(response.UserId, response.RoleId, response.Name);
+                response.Token = _utils.GenerateToken(response.UserId, response.RoleId, $"{response.Name} {response.FirstName}".Trim());
 
                 // No se devuelve el hash de la contrasena
                 response.Password = string.Empty;

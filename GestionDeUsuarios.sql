@@ -255,3 +255,170 @@ BEGIN
 
 END
 GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spCreateConsultation];
+GO
+CREATE PROCEDURE [dbo].[spCreateConsultation]
+    @PatientUserId INT,
+    @Title         NVARCHAR(150),
+    @Description   NVARCHAR(500),
+    @MeasureId     INT
+AS
+BEGIN
+
+    INSERT INTO [dbo].[Consultation] (PatientUserId, Title, Description, MeasureId, StatusId, CreatedAt)
+    VALUES (@PatientUserId, @Title, @Description, @MeasureId, 1, SYSUTCDATETIME())
+
+    SELECT CAST(SCOPE_IDENTITY() AS INT)
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spTakeConsultation];
+GO
+CREATE PROCEDURE [dbo].[spTakeConsultation]
+    @ConsultationId INT,
+    @DoctorUserId   INT
+AS
+BEGIN
+
+    UPDATE  [dbo].[Consultation]
+    SET     DoctorUserId = @DoctorUserId,
+            StatusId     = 2
+    WHERE   ConsultationId = @ConsultationId
+        AND DoctorUserId IS NULL
+        AND StatusId = 1
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spGetConsultations];
+GO
+CREATE PROCEDURE [dbo].[spGetConsultations]
+    @UserId INT,
+    @RoleId INT
+AS
+BEGIN
+
+    IF (@RoleId = 1)
+    BEGIN
+        -- Paciente: sus propias consultas, con el nombre del doctor asignado
+        SELECT  C.ConsultationId,
+                C.Title,
+                C.Description,
+                C.StatusId,
+                S.Name 'StatusName',
+                ISNULL(DP.Name + ' ' + DP.FirstName, 'Sin asignar') 'InterlocutorName',
+                C.MeasureId,
+                HIT.Name 'MeasureIndicator',
+                M.Value 'MeasureValue',
+                HIT.Unit 'MeasureUnit',
+                M.MeasureDate 'MeasureDate',
+                M.IsAbnormal 'MeasureIsAbnormal'
+        FROM    [dbo].[Consultation] C
+        INNER JOIN [dbo].[ConsultationStatus] S ON C.StatusId = S.StatusId
+        LEFT JOIN [dbo].[Profile] DP ON C.DoctorUserId = DP.UserId
+        LEFT JOIN [dbo].[UserHealthIndicatorMeasure] M ON C.MeasureId = M.MeasureId
+        LEFT JOIN [dbo].[HealthIndicatorType] HIT ON M.IndicatorTypeId = HIT.IndicatorTypeId
+        WHERE   C.PatientUserId = @UserId
+        ORDER BY C.CreatedAt DESC
+    END
+    ELSE
+    BEGIN
+        -- Doctor: consultas abiertas sin asignar o asignadas a el
+        SELECT  C.ConsultationId,
+                C.Title,
+                C.Description,
+                C.StatusId,
+                S.Name 'StatusName',
+                PP.Name + ' ' + PP.FirstName 'InterlocutorName',
+                C.MeasureId,
+                HIT.Name 'MeasureIndicator',
+                M.Value 'MeasureValue',
+                HIT.Unit 'MeasureUnit',
+                M.MeasureDate 'MeasureDate',
+                M.IsAbnormal 'MeasureIsAbnormal'
+        FROM    [dbo].[Consultation] C
+        INNER JOIN [dbo].[ConsultationStatus] S ON C.StatusId = S.StatusId
+        INNER JOIN [dbo].[Profile] PP ON C.PatientUserId = PP.UserId
+        LEFT JOIN [dbo].[UserHealthIndicatorMeasure] M ON C.MeasureId = M.MeasureId
+        LEFT JOIN [dbo].[HealthIndicatorType] HIT ON M.IndicatorTypeId = HIT.IndicatorTypeId
+        WHERE   (C.DoctorUserId IS NULL AND C.StatusId = 1)
+            OR  C.DoctorUserId = @UserId
+        ORDER BY C.CreatedAt DESC
+    END
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spGetMessages];
+GO
+CREATE PROCEDURE [dbo].[spGetMessages]
+    @ConsultationId INT
+AS
+BEGIN
+
+    SELECT  M.MessageId,
+            M.ConsultationId,
+            M.SenderUserId,
+            M.Content,
+            M.SentAt,
+            SP.Name + ' ' + SP.FirstName 'SenderName'
+    FROM    [dbo].[Message] M
+    INNER JOIN [dbo].[Profile] SP ON M.SenderUserId = SP.UserId
+    WHERE   M.ConsultationId = @ConsultationId
+    ORDER BY M.SentAt
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spRegisterMessage];
+GO
+CREATE PROCEDURE [dbo].[spRegisterMessage]
+    @ConsultationId INT,
+    @SenderUserId   INT,
+    @Content        NVARCHAR(2000)
+AS
+BEGIN
+
+    INSERT INTO [dbo].[Message] (ConsultationId, SenderUserId, Content, SentAt)
+    VALUES (@ConsultationId, @SenderUserId, @Content, SYSUTCDATETIME())
+
+    SELECT CAST(SCOPE_IDENTITY() AS INT)
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spValidateConsultationAccess];
+GO
+CREATE PROCEDURE [dbo].[spValidateConsultationAccess]
+    @ConsultationId INT,
+    @UserId         INT
+AS
+BEGIN
+
+    SELECT  COUNT(1)
+    FROM    [dbo].[Consultation]
+    WHERE   ConsultationId = @ConsultationId
+        AND (PatientUserId = @UserId OR DoctorUserId = @UserId)
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spCloseConsultation];
+GO
+CREATE PROCEDURE [dbo].[spCloseConsultation]
+    @ConsultationId INT,
+    @UserId         INT
+AS
+BEGIN
+
+    UPDATE  [dbo].[Consultation]
+    SET     StatusId = 3,
+            ClosedAt = SYSUTCDATETIME()
+    WHERE   ConsultationId = @ConsultationId
+        AND (PatientUserId = @UserId OR DoctorUserId = @UserId)
+        AND StatusId <> 3
+
+END
+GO
