@@ -33,6 +33,8 @@ namespace VitalApp_WEB.Controllers
                 HttpContext.Session.SetInt32("UserId", datos!.UserId);
                 HttpContext.Session.SetString("Name", datos!.Name);
                 HttpContext.Session.SetString("Token", datos!.Token);
+                HttpContext.Session.SetInt32("RoleId", datos!.RoleId);
+                HttpContext.Session.SetString("RoleName", datos!.RoleName);
 
                 return RedirectToAction("HomePage", "Home");
             }

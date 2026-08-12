@@ -10,6 +10,10 @@ namespace VitalApp_WEB.Models
         public bool IsActive { get; set; }
         public string Token { get; set; } = string.Empty;
 
+        // Rol del usuario
+        public int RoleId { get; set; }
+        public string RoleName { get; set; } = string.Empty;
+
         // Datos de perfil
         public string IdCard { get; set; } = string.Empty;
         public string Name { get; set; } = string.Empty;

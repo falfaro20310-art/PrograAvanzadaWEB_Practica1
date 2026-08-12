@@ -1,6 +1,20 @@
 USE [vitalapp_];
 GO
 
+CREATE TABLE [dbo].[Role]
+(
+    RoleId  INT             IDENTITY(1,1) NOT NULL,
+    Name    NVARCHAR(50)    NOT NULL,
+    CONSTRAINT PK_Role PRIMARY KEY (RoleId),
+    CONSTRAINT UQ_Role_Name UNIQUE (Name)
+);
+GO
+
+SET IDENTITY_INSERT [dbo].[Role] ON;
+INSERT INTO [dbo].[Role] (RoleId, Name) VALUES (1, N'Patient'), (2, N'Doctor');
+SET IDENTITY_INSERT [dbo].[Role] OFF;
+GO
+
 CREATE TABLE [dbo].[User]
 (
     UserId      INT             IDENTITY(1,1) NOT NULL,
@@ -10,8 +24,10 @@ CREATE TABLE [dbo].[User]
     CreatedAt   DATETIME2       NOT NULL DEFAULT (SYSUTCDATETIME()),
     UpdatedAt   DATETIME2       NULL,
     DeletedAt   DATETIME2       NULL,
+    RoleId      INT             NOT NULL DEFAULT (1),
     CONSTRAINT PK_User PRIMARY KEY (UserId),
-    CONSTRAINT UQ_User_Email UNIQUE (Email)
+    CONSTRAINT UQ_User_Email UNIQUE (Email),
+    CONSTRAINT FK_User_Role FOREIGN KEY (RoleId) REFERENCES [dbo].[Role](RoleId)
 );
 GO
 
@@ -19,7 +35,6 @@ CREATE TABLE [dbo].[Profile]
 (
     ProfileId   INT             IDENTITY(1,1) NOT NULL,
     UserId      INT             NOT NULL,
-    IdCard      NVARCHAR(50)    NOT NULL,
     Name        NVARCHAR(250)   NOT NULL,
     FirstName   NVARCHAR(250)   NOT NULL,
     LastName    NVARCHAR(250)   NOT NULL,
@@ -30,6 +45,7 @@ CREATE TABLE [dbo].[Profile]
     CreatedAt   DATETIME2       NOT NULL DEFAULT (SYSUTCDATETIME()),
     UpdatedAt   DATETIME2       NULL,
     DeletedAt   DATETIME2       NULL,
+    IdCard      NVARCHAR(50)    NULL,
     CONSTRAINT PK_Profile PRIMARY KEY (ProfileId),
     CONSTRAINT UQ_Profile_IdCard UNIQUE (IdCard),
     CONSTRAINT FK_Profile_User FOREIGN KEY (UserId) REFERENCES [dbo].[User](UserId)
@@ -51,7 +67,7 @@ CREATE TABLE [dbo].[MedicalCondition]
 );
 GO
 
-CREATE TABLE [dbo].[IndicatorType]
+CREATE TABLE [dbo].[HealthIndicatorType]
 (
     IndicatorTypeId INT             IDENTITY(1,1) NOT NULL,
     Name            NVARCHAR(250)   NOT NULL,
@@ -66,7 +82,7 @@ CREATE TABLE [dbo].[IndicatorType]
 );
 GO
 
-CREATE TABLE [dbo].[Measure]
+CREATE TABLE [dbo].[UserHealthIndicatorMeasure]
 (
     MeasureId       INT             IDENTITY(1,1) NOT NULL,
     UserId          INT             NOT NULL,
@@ -81,7 +97,7 @@ CREATE TABLE [dbo].[Measure]
     DeletedAt       DATETIME2       NULL,
     CONSTRAINT PK_Measure PRIMARY KEY (MeasureId),
     CONSTRAINT FK_Measure_User FOREIGN KEY (UserId) REFERENCES [dbo].[User](UserId),
-    CONSTRAINT FK_Measure_IndicatorType FOREIGN KEY (IndicatorTypeId) REFERENCES [dbo].[IndicatorType](IndicatorTypeId)
+    CONSTRAINT FK_Measure_IndicatorType FOREIGN KEY (IndicatorTypeId) REFERENCES [dbo].[HealthIndicatorType](IndicatorTypeId)
 );
 GO
 
@@ -97,7 +113,7 @@ CREATE TABLE [dbo].[Alert]
     DeletedAt   DATETIME2       NULL,
     CONSTRAINT PK_Alert PRIMARY KEY (AlertId),
     CONSTRAINT FK_Alert_User FOREIGN KEY (UserId) REFERENCES [dbo].[User](UserId),
-    CONSTRAINT FK_Alert_Measure FOREIGN KEY (MeasureId) REFERENCES [dbo].[Measure](MeasureId)
+    CONSTRAINT FK_Alert_Measure FOREIGN KEY (MeasureId) REFERENCES [dbo].[UserHealthIndicatorMeasure](MeasureId)
 );
 GO
 
@@ -118,7 +134,7 @@ CREATE TABLE [dbo].[Objective]
     DeletedAt       DATETIME2       NULL,
     CONSTRAINT PK_Objective PRIMARY KEY (ObjectiveId),
     CONSTRAINT FK_Objective_User FOREIGN KEY (UserId) REFERENCES [dbo].[User](UserId),
-    CONSTRAINT FK_Objective_IndicatorType FOREIGN KEY (IndicatorTypeId) REFERENCES [dbo].[IndicatorType](IndicatorTypeId)
+    CONSTRAINT FK_Objective_IndicatorType FOREIGN KEY (IndicatorTypeId) REFERENCES [dbo].[HealthIndicatorType](IndicatorTypeId)
 );
 GO
 

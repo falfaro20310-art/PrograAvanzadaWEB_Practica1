@@ -1,0 +1,76 @@
+@model List<VitalApp_WEB.Models.UserListItemModel>
+@{
+    ViewData["Title"] = "Usuarios";
+    Layout = "_InternalLayout";
+}
+
+<div class="card shadow-sm">
+    <div class="card-header bg-white d-flex align-items-center justify-content-between">
+        <h5 class="mb-0">Pacientes</h5>
+        <span class="badge bg-secondary">@Model.Count</span>
+    </div>
+    <div class="card-body">
+
+        @if (TempData["MensajeUsuarios"] != null)
+        {
+            <div class="alert alert-@TempData["ClaseMensajeUsuarios"]" role="alert">@TempData["MensajeUsuarios"]</div>
+        }
+
+        @if (!Model.Any())
+        {
+            <p class="text-muted mb-0">No hay pacientes registrados.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Correo</th>
+                            <th>Cédula</th>
+                            <th>Estado</th>
+                            <th style="min-width:220px;">Rol</th>
+                            <th class="text-end">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var user in Model)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@user.FullName</td>
+                                <td>@user.Email</td>
+                                <td>@user.IdCard</td>
+                                <td>
+                                    @if (user.IsActive)
+                                    {
+                                        <span class="badge bg-success">Activo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Inactivo</span>
+                                    }
+                                </td>
+                                <td>
+                                    <form asp-controller="Usuarios" asp-action="CambiarRol" method="post" class="d-flex gap-2">
+                                        <input type="hidden" name="userId" value="@user.UserId" />
+                                        <select name="roleId" class="form-select form-select-sm">
+                                            <option value="1" selected="@(user.RoleId == 1)">Paciente</option>
+                                            <option value="2" selected="@(user.RoleId == 2)">Doctor</option>
+                                        </select>
+                                        <button type="submit" class="btn btn-outline-secondary btn-sm text-nowrap">Cambiar</button>
+                                    </form>
+                                </td>
+                                <td class="text-end">
+                                    <a asp-controller="Usuarios" asp-action="Detalle" asp-route-id="@user.UserId" class="btn btn-outline-primary btn-sm">
+                                        <i class="ti ti-eye me-1"></i>Ver detalle
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

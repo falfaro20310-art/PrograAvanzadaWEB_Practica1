@@ -2,6 +2,7 @@ using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using System.Security.Claims;
 using VitalApp_API.Models;
 
 namespace VitalApp_API.Controllers
@@ -11,6 +12,16 @@ namespace VitalApp_API.Controllers
     [ApiController]
     public class UserController(IConfiguration _config) : ControllerBase
     {
+        // Rol Doctor
+        private const int DoctorRoleId = 2;
+
+        // Verifica si quien llama es un doctor segun el claim del token
+        private bool IsDoctor()
+        {
+            var roleId = User.FindFirstValue("roleId");
+            return roleId == DoctorRoleId.ToString();
+        }
+
         #region Perfil
 
         // Consulta los datos personales del usuario
@@ -219,6 +230,50 @@ namespace VitalApp_API.Controllers
                 return Ok("La medicion se registro correctamente.");
 
             return BadRequest("La medicion no se pudo registrar correctamente.");
+        }
+
+        #endregion
+
+        #region Gestion de Usuarios (Doctor)
+
+        // Consulta la lista de pacientes (solo para doctores)
+        [HttpGet("GetAllPatientsAPI")]
+        public IActionResult GetAllPatientsAPI()
+        {
+            if (!IsDoctor())
+                return Forbid();
+
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var response = context.Query<UserListItemResponseModel>("spGetAllPatients").ToList();
+
+            return Ok(response);
+        }
+
+        // Actualiza el rol de un usuario (solo para doctores)
+        [HttpPut("UpdateUserRoleAPI")]
+        public IActionResult UpdateUserRoleAPI(ChangeRoleRequestModel model)
+        {
+            if (!IsDoctor())
+                return Forbid();
+
+            // Un doctor no puede cambiar su propio rol
+            var currentUserId = User.FindFirstValue("userId");
+            if (currentUserId == model.UserId.ToString())
+                return BadRequest("No puede cambiar su propio rol.");
+
+            using var context = new SqlConnection(_config["ConnectionStrings:DefaultConnection"]);
+
+            var parameters = new DynamicParameters();
+            parameters.Add("@UserId", model.UserId);
+            parameters.Add("@RoleId", model.RoleId);
+
+            var update = context.Execute("spUpdateUserRole", parameters);
+
+            if (update > 0)
+                return Ok("El rol se actualizo correctamente.");
+
+            return BadRequest("El rol no se pudo actualizar correctamente.");
         }
 
         #endregion

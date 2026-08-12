@@ -3,6 +3,11 @@
     var userName = Context.Session.GetString("Name") ?? "Usuario";
     var userInitial = string.IsNullOrWhiteSpace(userName) ? "U" : userName.Trim().Substring(0, 1).ToUpper();
     var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+
+    // Rol del usuario autenticado
+    var roleName = Context.Session.GetString("RoleName") ?? string.Empty;
+    var isDoctor = roleName == "Doctor";
+    var roleLabel = isDoctor ? "Doctor" : "Paciente";
 }
 <!DOCTYPE html>
 <html lang="es">
@@ -121,6 +126,14 @@
                         <i class="ti ti-bell me-2"></i>Alertas
                     </a>
                 </li>
+                @if (isDoctor)
+                {
+                    <li class="nav-item mt-1">
+                        <a class="nav-link @(currentController == "Usuarios" ? "active fw-semibold" : "")" asp-controller="Usuarios" asp-action="Index">
+                            <i class="ti ti-users me-2"></i>Usuarios
+                        </a>
+                    </li>
+                }
                 <hr class="my-3" />
                 <li class="nav-item mb-2">
                     <div class="text-muted small">Cuenta</div>
@@ -155,7 +168,10 @@
                     <li class="ms-2">
                         <a asp-controller="Perfil" asp-action="Index" class="d-flex align-items-center gap-2 text-decoration-none">
                             <span class="rounded-circle bg-danger text-white d-flex align-items-center justify-content-center fw-bold" style="width:32px;height:32px">@userInitial</span>
-                            <span class="small">@userName</span>
+                            <span class="d-flex flex-column lh-1">
+                                <span class="small">@userName</span>
+                                <span class="badge @(isDoctor ? "bg-primary" : "bg-success") mt-1" style="width:fit-content">@roleLabel</span>
+                            </span>
                         </a>
                     </li>
                     <li class="ms-2">

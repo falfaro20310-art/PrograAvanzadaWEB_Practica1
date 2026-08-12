@@ -9,6 +9,6 @@ namespace VitalApp_API.Services
         Task SendEmailAsync(string recipient, string subject, string htmlBody);
 
         // Genera un token JWT para el usuario autenticado
-        string GenerateToken(int userId);
+        string GenerateToken(int userId, int roleId, string name);
     }
 }

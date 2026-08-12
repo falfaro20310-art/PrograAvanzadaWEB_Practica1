@@ -50,8 +50,8 @@ namespace VitalApp_API.Services
             await client.DisconnectAsync(true);
         }
 
-        // Genera un token JWT con el identificador del usuario
-        public string GenerateToken(int userId)
+        // Genera un token JWT con el identificador, rol y nombre del usuario
+        public string GenerateToken(int userId, int roleId, string name)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = System.Text.Encoding.ASCII.GetBytes(_config["Jwt:SecretKey"]!);
@@ -59,7 +59,9 @@ namespace VitalApp_API.Services
             {
                 Subject = new System.Security.Claims.ClaimsIdentity(new[]
                 {
-                    new System.Security.Claims.Claim("userId", userId.ToString())
+                    new System.Security.Claims.Claim("userId", userId.ToString()),
+                    new System.Security.Claims.Claim("roleId", roleId.ToString()),
+                    new System.Security.Claims.Claim("name", name)
                 }),
                 Expires = DateTime.UtcNow.AddMinutes(30),
                 SigningCredentials = new Microsoft.IdentityModel.Tokens.SigningCredentials(

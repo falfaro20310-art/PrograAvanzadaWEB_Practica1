@@ -45,12 +45,15 @@ BEGIN
             U.Email,
             U.Password,
             U.IsActive,
+            U.RoleId,
+            R.Name 'RoleName',
             P.IdCard,
             P.Name,
             P.FirstName,
             P.LastName
     FROM    [dbo].[User] U
     INNER JOIN [dbo].[Profile] P ON U.UserId = P.UserId
+    INNER JOIN [dbo].[Role] R ON U.RoleId = R.RoleId
     WHERE   U.Email = @Email
         AND U.IsActive = 1
         AND U.DeletedAt IS NULL
@@ -206,6 +209,49 @@ BEGIN
     SET     DeletedAt = SYSUTCDATETIME()
     WHERE   MedicalConditionId = @MedicalConditionId
         AND UserId = @UserId
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spGetAllPatients];
+GO
+
+CREATE PROCEDURE [dbo].[spGetAllPatients]
+AS
+BEGIN
+
+    SELECT  U.UserId,
+            U.Email,
+            U.IsActive,
+            U.RoleId,
+            R.Name 'RoleName',
+            P.IdCard,
+            P.Name,
+            P.FirstName,
+            P.LastName
+    FROM    [dbo].[User] U
+    INNER JOIN [dbo].[Profile] P ON U.UserId = P.UserId
+    INNER JOIN [dbo].[Role] R ON U.RoleId = R.RoleId
+    WHERE   U.DeletedAt IS NULL
+        AND U.RoleId = 1
+    ORDER BY P.Name, P.FirstName
+
+END
+GO
+
+DROP PROCEDURE IF EXISTS [dbo].[spUpdateUserRole];
+GO
+
+CREATE PROCEDURE [dbo].[spUpdateUserRole]
+    @UserId INT,
+    @RoleId INT
+AS
+BEGIN
+
+    UPDATE  [dbo].[User]
+    SET     RoleId    = @RoleId,
+            UpdatedAt = SYSUTCDATETIME()
+    WHERE   UserId = @UserId
 
 END
 GO
